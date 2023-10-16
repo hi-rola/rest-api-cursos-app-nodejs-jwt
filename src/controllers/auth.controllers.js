@@ -2,6 +2,8 @@ import { pool } from "../db.js";
 import bcrypt from "bcrypt";
 import { generarJWT } from "../helpers/jwt.js";
 
+import { existeCorreo } from "../helpers/existeCorreo.js";
+
 export const login = async (req, res) => {
   try {
     const { correo, contrasena } = req.body;
@@ -62,9 +64,9 @@ export const registrar = async (req, res) => {
     const { nombre, apellidos, edad, genero, correo, contrasena, rol, estado } =
       req.body;
 
-    const existeCorreo = await verificarExisteCorreo(correo);
+    const correoValido = await existeCorreo(correo);
 
-    if (existeCorreo) {
+    if (correoValido) {
       return res.send({
         ok: false,
         mensaje: "Correo existente, ingrese otro por favor",
@@ -143,15 +145,6 @@ export const renovarToken = async (req, res) => {
       mensaje: "Algo salió mal, intentelo más tarde",
     });
   }
-};
-
-const verificarExisteCorreo = async (correo) => {
-  const [rows] = await pool.query(
-    `SELECT correo FROM USUARIO where correo = ?`,
-    correo
-  );
-  if (rows.length === 1) return true;
-  return false;
 };
 
 const getUsuaurio = async (correo) => {
