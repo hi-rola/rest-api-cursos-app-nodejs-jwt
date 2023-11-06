@@ -5,6 +5,7 @@ import {
   updateEstadoEstudiante,
   updateEstudiante,
   suscribirseEstudianteCurso,
+  registrarEstudiante,
 } from "../controllers/usuarios.controllers.js";
 
 import { validarJWT } from "../middlewares/validar-jwt.js";
@@ -24,5 +25,6 @@ router.patch(
 );
 router.put("/usuarios-estudiante/:id_usuario", validarJWT, updateEstudiante);
 router.post("/usuarios-curso", validarJWT, suscribirseEstudianteCurso);
+router.post("/usuarios-estudiante", validarJWT, registrarEstudiante);
 
 export default router;

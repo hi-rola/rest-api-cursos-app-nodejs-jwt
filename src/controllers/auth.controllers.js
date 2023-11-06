@@ -44,6 +44,7 @@ export const login = async (req, res) => {
         estado: usurio.estado,
         token,
         ok: true,
+        mensaje: "Sesión valida",
       });
     } else {
       return res.send({
@@ -61,8 +62,8 @@ export const login = async (req, res) => {
 
 export const registrar = async (req, res) => {
   try {
-    const { nombre, apellidos, edad, genero, correo, contrasena, rol, estado } =
-      req.body;
+    const { nombre, apellidos, correo, contrasena, rol } = req.body;
+    const estatus = 1;
 
     const correoValido = await existeCorreo(correo);
 
@@ -76,19 +77,10 @@ export const registrar = async (req, res) => {
     const contrasenaEncriptada = bcrypt.hashSync(contrasena, 10);
 
     const [result] = await pool.query(
-      `INSERT INTO USUARIO (nombre, apellidos, edad, genero, correo, contrasena, rol, estado)
-      VALUES (?,?,?,?,?,?,?,?)
+      `INSERT INTO USUARIO (nombre, apellidos, correo, contrasena, rol, estado)
+      VALUES (?,?,?,?,?,?)
       `,
-      [
-        nombre,
-        apellidos,
-        edad,
-        genero,
-        correo,
-        contrasenaEncriptada,
-        rol,
-        estado,
-      ]
+      [nombre, apellidos, correo, contrasenaEncriptada, rol, estatus]
     );
 
     const token = await generarJWT(result.insertId, nombre + " " + apellidos);
@@ -97,11 +89,9 @@ export const registrar = async (req, res) => {
       id_usuario: result.insertId,
       nombre,
       apellidos,
-      edad,
-      genero,
       correo,
       rol,
-      estado,
+      estatus,
       token,
       ok: true,
       mensaje: "Usuario registrado exitosamente",
@@ -109,7 +99,7 @@ export const registrar = async (req, res) => {
   } catch (error) {
     res.send({
       ok: false,
-      mensaje: "Algo salió mal, intentelo más tarde",
+      mensaje: "Algo salió mal, inténtelo más tarde",
     });
   }
 };

@@ -3,10 +3,12 @@ import { pool } from "../db.js";
 export const getCursos = async (req, res) => {
   try {
     const [result] = await pool.query(
-      `SELECT cu.id_curso, cu.nombre, cu.descripcion, cu.imagen, cu.horas_demanda, cu.id_usuario, c.categoria
+      `SELECT cu.id_curso, cu.nombre, cu.descripcion, cu.imagen, cu.horas_demanda, cu.id_usuario, 
+             c.id_categoria, c.categoria, u.nombre as nombre_profesor, u.apellidos as apellidos_profesor
       FROM curso cu 
       INNER JOIN categoria_curso ca on cu.id_curso = ca.id_curso
-      INNER JOIN categoria c on c.id_categoria = ca.id_categoria`
+      INNER JOIN categoria c on c.id_categoria = ca.id_categoria
+      INNER JOIN usuario u on u.id_usuario = cu.id_usuario`
     );
 
     res.json(result);
@@ -22,10 +24,12 @@ export const getCursoById = async (req, res) => {
   try {
     const { id_curso } = req.params;
     const [result] = await pool.query(
-      `SELECT cu.id_curso, cu.nombre, cu.descripcion, cu.imagen, cu.horas_demanda, cu.id_usuario, c.categoria
+      `SELECT cu.id_curso, cu.nombre, cu.descripcion, cu.imagen, cu.horas_demanda, cu.id_usuario, 
+      c.id_categoria, c.categoria, u.nombre as nombre_profesor, u.apellidos as apellidos_profesor
       FROM curso cu 
       INNER JOIN categoria_curso ca on cu.id_curso = ca.id_curso
-      INNER JOIN categoria c on c.id_categoria = ca.id_categoria 
+      INNER JOIN categoria c on c.id_categoria = ca.id_categoria
+      INNER JOIN usuario u on u.id_usuario = cu.id_usuario 
       WHERE cu.id_curso = ?`,
       id_curso
     );
@@ -78,15 +82,17 @@ export const createCurso = async (req, res) => {
         id_usuario,
         categoria: resultCategoria[0].categoria,
         ok: true,
-        mensaje: "Curso creado exitosamente",
+        mensaje: "Curso registrado exitosamente",
       });
     }
 
     res.json(result[0]);
   } catch (error) {
+    console.log(error);
     res.send({
+      error,
       ok: false,
-      mensaje: "Algo salió mal, intentelo más tarde",
+      mensaje: "Algo salió mal, inténtelo más tarde",
     });
   }
 };
@@ -135,7 +141,7 @@ export const updateCurso = async (req, res) => {
     res.send({
       error,
       ok: false,
-      mensaje: "Algo salió mal, intentelo más tarde",
+      mensaje: "Algo salió mal, inténtelo más tarde",
     });
   }
 };
